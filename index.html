@@ -7,36 +7,40 @@
 
 <style>
     body {
-    font-family: Arial, sans-serif;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
 
-    /* ФОНОВОЕ ИЗОБРАЖЕНИЕ */
-    background-image: url("https://avatars.mds.yandex.net/i?id=33a08509c3f0da4ebd2fb5a4ac568879_l-9733994-images-thumbs&n=13");
-    background-size: cover;      /* растянуть на весь экран */
-    background-position: center; /* центрировать */
-    background-repeat: no-repeat;
+        /* АНИМИРОВАННЫЙ ФОН */
+        background: url("https://i.gifer.com/7VE.gif");
+        background-size: cover;
+        background-position: center;
+        animation: moveBg 20s linear infinite;
+    }
 
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
+    @keyframes moveBg {
+        0% { background-position: 0 0; }
+        100% { background-position: 1000px 0; }
+    }
 
     .quiz-box {
-        background: #fff;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         width: 90%;
         max-width: 450px;
         padding: 25px;
-        border-radius: 14px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        border-radius: 20px;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.25);
         text-align: center;
+        border: 1px solid rgba(255,255,255,0.25);
     }
 
-    h2 {
-        margin-bottom: 20px;
-    }
+    h2 { margin-bottom: 20px; }
 
     .option {
         background: #eceff3;
@@ -66,9 +70,25 @@
     #nextBtn:hover {
         background: #45a049;
     }
+
+#bgVideo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    filter: brightness(0.6);
+}
 </style>
 </head>
 <body>
+
+<!-- VIDEO BACKGROUND -->
+<video autoplay muted loop id="bgVideo">
+    <source src="aniamtsiya.mp4" type="video/mp4">
+</video>
 
 <div class="quiz-box">
     <h2 id="question">Вопрос загружается...</h2>
@@ -77,38 +97,58 @@
 </div>
 
 <script>
-    const questions = [
-        { q: "Столица Франции?", answers: ["Париж", "Рим", "Берлин"], correct: 0 },
-        { q: "2 + 2 = ?", answers: ["3", "4", "5"], correct: 1 },
-        { q: "Какой язык используется для создания стилей веб-страниц?", answers: ["HTML", "CSS", "JavaScript"], correct: 1 },
-        { q: "Что означает аббревиатура 'HTTP'?", answers: ["HyperText Transfer Protocol", "HighText Transfer Protocol", "HyperText Transmission Protocol"], correct: 0 },
-        { q: "Какой тег используется для вставки изображения?", answers: ["img", "image", "src"], correct: 0 },
-        { q: "Какой тег делает нумерованный список?", answers: ["ul", "ol", "li"], correct: 1 },
-        { q: "Какой тег создаёт гиперссылку?", answers: ["a", "link", "href"], correct: 0 },
-        { q: "Какой атрибут <img> указывает путь?", answers: ["src", "href", "link"], correct: 0 },
-        { q: "Тег для заголовков?", answers: ["head", "header", "h1 - h6"], correct: 2 },
-        { q: "Какие теги создают гиперссылку?", answers: ["a /a", "link /link", "href /href"], correct: 0 }
-    ];
+const questions = [
+    // 5 вопросов с картинкой
+    { q: "Bu qaysi bino va qayerda joylashgan?", img: "photo_2025-12-08_14-49-40.jpg", answers: ["To'g'ri javob"], correct: 0 },
+    { q: "Bu qanaqa devor va qayerda joylashgan?", img: "photo_2025-12-08_14-49-44.jpg", answers: ["To'g'ri javob"], correct: 0 },
+    { q: "Bu qaysi shaxar?", img: "photo_2025-12-08_14-49-42.jpg", answers: ["To'g'ri javob"], correct: 0 },
+    { q: "Bu tarixiy obida qayerda joylashgan?", img: "photo_2025-12-08_14-49-46.jpg", answers: ["To'g'ri javob"], correct: 0 },
+    { q: "Bu qaysi davlatning bayrog'i?", img: "photo_2025-12-08_14-53-22.jpg", answers: ["To'g'ri javob"], correct: 0 },
 
-    let current = 0;
-    let score = 0;
+    // Остальные вопросы без картинок
+    { q: "Qaysi davlat pizza bilan mashhur?", answers: ["Yaponiya", "Italiya", "Xitoy"], correct: 1 },
+    { q: "Eyfel minorasi qaysi shaharda joylashgan?", answers: ["Fransiya", "Rossiya", "AQSh"], correct: 0 },
+    { q: "Turkiya poytaxti qaysi?", answers: ["Ankara", "Istanbul", "Izmir"], correct: 0 },
+    { q: "Qaysi davlat bayrog'i oq doira va qizil fondan iborat?", answers: ["Yaponiya", "Koreya", "Hindiston"], correct: 0 },
+    { q: "Big Ben qaysi shaharda joylashgan?", answers: ["London", "Berlin", "Toshkent"], correct: 0 },
+    { q: "Dunyoning eng kichik davlati qaysi?", answers: ["Vatikon", "Monako", "Lixtenshteyn"], correct: 0 },
+    { q: "Sushi bilan mashhur davlat?", answers: ["Yaponiya", "Xitoy", "Tailand"], correct: 0 },
+    { q: "Kreml qaysi poytaxtda joylashgan?", answers: ["Moskva", "Sankt-Peterburg", "Varshava"], correct: 0 },
+    { q: "Piramidalar qaysi mamlakatda?", answers: ["Misr", "Hindiston", "Gretsiya"], correct: 0 }
+];
 
-    function loadQuestion() {
-        let q = questions[current];
-        document.getElementById("question").innerText = q.q;
-        let opts = "";
+let current = 0;
+let score = 0;
+
+function loadQuestion() {
+    let q = questions[current];
+    document.getElementById("question").innerHTML = `
+        ${q.img ? `<img src='${q.img}' style='width:100%;border-radius:10px;margin-bottom:15px;'>` : ""}
+        <div>${q.q}</div>
+    `;
+
+    let opts = "";
+    if (q.answers.length > 1) {
         q.answers.forEach((ans, idx) => {
             opts += `<div class='option' onclick='selectAnswer(${idx})'>${ans}</div>`;
         });
-        document.getElementById("options").innerHTML = opts;
+        document.getElementById("nextBtn").style.display = "none";
+    } else {
+        // Вопрос без вариантов — сразу показываем кнопку Далее
+        document.getElementById("options").innerHTML = "";
+        document.getElementById("nextBtn").style.display = "block";
     }
 
-    function selectAnswer(i) {
-        let q = questions[current];
-        let options = document.querySelectorAll(".option");
+    document.getElementById("options").innerHTML = opts;
+}
 
-        options.forEach(opt => opt.style.pointerEvents = "none");
+function selectAnswer(i) {
+    let q = questions[current];
+    let options = document.querySelectorAll(".option");
 
+    options.forEach(opt => opt.style.pointerEvents = "none");
+
+    if (q.answers.length > 1) { // проверка только для вопросов с вариантами
         if (i === q.correct) {
             score++;
             options[i].style.background = "#b8e994";
@@ -116,29 +156,30 @@
             options[i].style.background = "#ff7675";
             options[q.correct].style.background = "#b8e994";
         }
-
-        document.getElementById("nextBtn").style.display = "block";
     }
 
-    function nextQuestion() {
-        current++;
-        document.getElementById("nextBtn").style.display = "none";
+    document.getElementById("nextBtn").style.display = "block";
+}
 
-        if (current >= questions.length) {
-            showResult();
-        } else {
-            loadQuestion();
-        }
+function nextQuestion() {
+    current++;
+    document.getElementById("nextBtn").style.display = "none";
+
+    if (current >= questions.length) {
+        showResult();
+    } else {
+        loadQuestion();
     }
+}
 
-    function showResult() {
-        document.querySelector(".quiz-box").innerHTML = `
-            <h2>Готово!</h2>
-            <p>Ваш результат: <b>${score}</b> из <b>${questions.length}</b></p>
-        `;
-    }
+function showResult() {
+    document.querySelector(".quiz-box").innerHTML = `
+        <h2>Готово!</h2>
+        <p>Ваш результат: <b>${score}</b> из <b>${questions.length}</b></p>
+    `;
+}
 
-    loadQuestion();
+loadQuestion();
 </script>
 
 </body>
